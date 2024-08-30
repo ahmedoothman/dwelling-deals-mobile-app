@@ -64,8 +64,8 @@ const SignUpScreen = ({ navigation }) => {
     dispatch({ type: 'SET_LOADING', payload: false });
 
     if (response.status === 'success') {
-      console.log('Sign up successful');
-      // navigation.navigate('SignIn'); // Navigate to Sign In on successful sign-up
+      // console.log('Sign up successful');
+      navigation.navigate('Verify Email'); // Navigate to Sign In on successful sign-up
     } else {
       dispatch({ type: 'SET_ERROR', payload: response.message });
     }
