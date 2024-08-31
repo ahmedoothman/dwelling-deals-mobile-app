@@ -93,6 +93,13 @@ const SignInScreen = ({ navigation }) => {
           <Text style={styles.link}>Sign Up</Text>
         </TouchableOpacity>
       </View>
+      <View style={styles.footer}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Forgot Password')}
+        >
+          <Text style={styles.link}>Forgot Password?</Text>
+        </TouchableOpacity>
+      </View>
       <Snackbar
         visible={state.snackbarVisible}
         onDismiss={() => dispatch({ type: 'CLOSE_SNACKBAR' })}
