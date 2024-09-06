@@ -1,26 +1,26 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import {
-  View,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  ScrollView,
-  Platform,
-} from 'react-native';
-import { TextInput, Button, Snackbar, RadioButton } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+  TextInput,
+  Button,
+  ActivityIndicator,
+  RadioButton,
+} from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useNavigation } from '@react-navigation/native';
 import { signUpService } from '../../services/userService';
-import { initialState, reducer } from './SignUpReducer'; // Adjust path to your reducer
-import theme from '../../theme'; // Adjust the path to your theme file
+import { initialState, reducer } from './SignUpReducer';
+import theme from '../../theme';
 
-const SignUpScreen = ({ navigation }) => {
+const SignUpScreen = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [showPasswordConfirm, setShowPasswordConfirm] = React.useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  const navigation = useNavigation();
 
   const handleSignUp = async () => {
     dispatch({ type: 'SET_LOADING', payload: true });
+    dispatch({ type: 'CLEAR_ERRORS' });
 
     // Validate inputs
     let hasError = false;
@@ -72,215 +72,168 @@ const SignUpScreen = ({ navigation }) => {
     dispatch({ type: 'SET_LOADING', payload: false });
 
     if (response.status === 'success') {
-      navigation.navigate('Verify Email'); // Navigate to Sign In on successful sign-up
+      navigation.navigate('VerifyEmail');
     } else {
       dispatch({ type: 'SET_ERROR', payload: response.message });
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
-      <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-        <View style={styles.innerContainer}>
-          <TextInput
-            label='Name'
-            mode='outlined'
-            value={state.name}
-            onChangeText={(text) =>
-              dispatch({ type: 'SET_NAME', payload: text })
-            }
-            style={styles.input}
-            theme={{ colors: { primary: theme.colors.primary } }}
-            error={Boolean(state.nameError)}
-            left={
-              <TextInput.Icon icon={() => <Icon name='account' size={20} />} />
-            }
-          />
-          <TextInput
-            label='Email'
-            mode='outlined'
-            value={state.email}
-            onChangeText={(text) =>
-              dispatch({ type: 'SET_EMAIL', payload: text })
-            }
-            style={styles.input}
-            theme={{ colors: { primary: theme.colors.primary } }}
-            autoCompleteType='email'
-            keyboardType='email-address'
-            autoCapitalize='none'
-            error={Boolean(state.emailError)}
-            left={
-              <TextInput.Icon icon={() => <Icon name='email' size={20} />} />
-            }
-          />
-          <TextInput
-            label='Password'
-            mode='outlined'
-            value={state.password}
-            onChangeText={(text) =>
-              dispatch({ type: 'SET_PASSWORD', payload: text })
-            }
-            style={styles.input}
-            theme={{ colors: { primary: theme.colors.primary } }}
-            secureTextEntry={!showPassword}
-            left={
-              <TextInput.Icon icon={() => <Icon name='lock' size={20} />} />
-            }
-            right={
-              <TextInput.Icon
-                icon={() => (
-                  <Icon
-                    name={showPassword ? 'eye-off' : 'eye'}
-                    size={20}
-                    onPress={() => setShowPassword(!showPassword)}
-                  />
-                )}
-              />
-            }
-            error={Boolean(state.passwordError)}
-          />
-          <TextInput
-            label='Confirm Password'
-            mode='outlined'
-            value={state.passwordConfirm}
-            onChangeText={(text) =>
-              dispatch({ type: 'SET_PASSWORD_CONFIRM', payload: text })
-            }
-            style={styles.input}
-            theme={{ colors: { primary: theme.colors.primary } }}
-            secureTextEntry={!showPasswordConfirm}
-            left={
-              <TextInput.Icon icon={() => <Icon name='lock' size={20} />} />
-            }
-            right={
-              <TextInput.Icon
-                icon={() => (
-                  <Icon
-                    name={showPasswordConfirm ? 'eye-off' : 'eye'}
-                    size={20}
-                    onPress={() => setShowPasswordConfirm(!showPasswordConfirm)}
-                  />
-                )}
-              />
-            }
-            error={Boolean(state.passwordConfirmError)}
-          />
-          <TextInput
-            label='Phone Number'
-            mode='outlined'
-            value={state.phoneNumber}
-            onChangeText={(text) =>
-              dispatch({ type: 'SET_PHONE_NUMBER', payload: text })
-            }
-            style={styles.input}
-            theme={{ colors: { primary: theme.colors.primary } }}
-            keyboardType='phone-pad'
-            error={Boolean(state.phoneNumberError)}
-            left={
-              <TextInput.Icon icon={() => <Icon name='phone' size={20} />} />
-            }
-          />
-          <View style={styles.radioButtonContainer}>
-            <Text style={styles.radioButtonLabel}>Select Role</Text>
-            <View style={styles.radioButtonGroup}>
-              <RadioButton.Item
-                label='Realtor'
-                value='realtor'
-                status={state.role === 'realtor' ? 'checked' : 'unchecked'}
-                onPress={() =>
-                  dispatch({ type: 'SET_ROLE', payload: 'realtor' })
-                }
+    <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.avatarContainer}>
+        <Icon name='person-add' size={60} color={theme.colors.primary} />
+      </View>
+      <Text style={styles.title}>Sign Up</Text>
+      <TextInput
+        mode='outlined'
+        label='Name'
+        value={state.name}
+        onChangeText={(text) => dispatch({ type: 'SET_NAME', payload: text })}
+        style={styles.textInput}
+        theme={{ colors: { primary: theme.colors.primary } }}
+        error={Boolean(state.nameError)}
+      />
+      <TextInput
+        mode='outlined'
+        label='Email'
+        value={state.email}
+        onChangeText={(text) => dispatch({ type: 'SET_EMAIL', payload: text })}
+        keyboardType='email-address'
+        autoCapitalize='none'
+        style={styles.textInput}
+        theme={{ colors: { primary: theme.colors.primary } }}
+        error={Boolean(state.emailError)}
+      />
+      <TextInput
+        mode='outlined'
+        label='Password'
+        value={state.password}
+        onChangeText={(text) =>
+          dispatch({ type: 'SET_PASSWORD', payload: text })
+        }
+        secureTextEntry={!showPassword}
+        style={styles.textInput}
+        theme={{ colors: { primary: theme.colors.primary } }}
+        error={Boolean(state.passwordError)}
+        right={
+          <TextInput.Icon
+            icon={() => (
+              <Icon
+                name={showPassword ? 'visibility-off' : 'visibility'}
+                size={24}
                 color={theme.colors.primary}
+                onPress={() => setShowPassword(!showPassword)}
               />
-              <RadioButton.Item
-                label='User'
-                value='user'
-                status={state.role === 'user' ? 'checked' : 'unchecked'}
-                onPress={() => dispatch({ type: 'SET_ROLE', payload: 'user' })}
-                color={theme.colors.primary}
-              />
-            </View>
-            {state.roleError && (
-              <Text style={styles.errorText}>{state.roleError}</Text>
             )}
-          </View>
-          <Button
-            mode='contained'
-            onPress={handleSignUp}
-            loading={state.loading}
-            style={styles.button}
-          >
-            Sign Up
-          </Button>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('SignIn')}
-            style={styles.link}
-          >
-            <Text style={styles.linkText}>
-              Already have an account? Sign In
-            </Text>
-          </TouchableOpacity>
-          <Snackbar
-            visible={state.snackbarVisible}
-            onDismiss={() => dispatch({ type: 'CLOSE_SNACKBAR' })}
-            action={{
-              label: 'Close',
-              onPress: () => dispatch({ type: 'CLOSE_SNACKBAR' }),
-            }}
-            style={styles.snackbar}
-          >
-            {state.error}
-          </Snackbar>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          />
+        }
+      />
+      <TextInput
+        mode='outlined'
+        label='Confirm Password'
+        value={state.passwordConfirm}
+        onChangeText={(text) =>
+          dispatch({ type: 'SET_PASSWORD_CONFIRM', payload: text })
+        }
+        secureTextEntry={!showPasswordConfirm}
+        style={styles.textInput}
+        theme={{ colors: { primary: theme.colors.primary } }}
+        error={Boolean(state.passwordConfirmError)}
+        right={
+          <TextInput.Icon
+            icon={() => (
+              <Icon
+                name={showPasswordConfirm ? 'visibility-off' : 'visibility'}
+                size={24}
+                color={theme.colors.primary}
+                onPress={() => setShowPasswordConfirm(!showPasswordConfirm)}
+              />
+            )}
+          />
+        }
+      />
+      <TextInput
+        mode='outlined'
+        label='Phone Number'
+        value={state.phoneNumber}
+        onChangeText={(text) =>
+          dispatch({ type: 'SET_PHONE_NUMBER', payload: text })
+        }
+        keyboardType='phone-pad'
+        style={styles.textInput}
+        theme={{ colors: { primary: theme.colors.primary } }}
+        error={Boolean(state.phoneNumberError)}
+      />
+      <View style={styles.radioButtonContainer}>
+        <Text style={styles.radioButtonLabel}>Select Role</Text>
+        <RadioButton.Group
+          onValueChange={(value) =>
+            dispatch({ type: 'SET_ROLE', payload: value })
+          }
+          value={state.role}
+        >
+          <RadioButton.Item label='Realtor' value='realtor' />
+          <RadioButton.Item label='User' value='user' />
+        </RadioButton.Group>
+      </View>
+      {state.error ? <Text style={styles.errorText}>{state.error}</Text> : null}
+      <Button
+        mode='contained'
+        onPress={handleSignUp}
+        disabled={state.loading}
+        style={styles.button}
+      >
+        {state.loading ? <ActivityIndicator color='white' /> : 'Sign Up'}
+      </Button>
+      <View style={styles.linkContainer}>
+        <Button mode='text' onPress={() => navigation.navigate('SignIn')}>
+          Already have an account? Sign In
+        </Button>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-  },
-  scrollViewContainer: {
     flexGrow: 1,
+    padding: 20,
     justifyContent: 'center',
+    backgroundColor: theme.colors.background,
   },
-  innerContainer: {
-    padding: 16,
+  avatarContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
   },
-  input: {
-    marginBottom: 16,
+  title: {
+    fontSize: 24,
+    marginBottom: 20,
+    textAlign: 'center',
+    color: theme.colors.text,
   },
-  button: {
-    marginTop: 16,
-  },
-  snackbar: {
-    margin: 16,
+  textInput: {
+    width: '100%',
+    marginBottom: 15,
   },
   radioButtonContainer: {
-    marginBottom: 16,
+    marginBottom: 15,
   },
   radioButtonLabel: {
-    marginBottom: 8,
     fontSize: 16,
-    color: theme.colors.primary,
+    marginBottom: 5,
+    color: theme.colors.text,
   },
-  radioButtonGroup: {
-    marginBottom: 8,
-  },
-  link: {
-    marginTop: 16,
-  },
-  linkText: {
-    color: theme.colors.primary,
-    textAlign: 'center',
+  button: {
+    width: '100%',
+    marginTop: 10,
   },
   errorText: {
-    color: 'red',
-    marginTop: 4,
+    color: theme.colors.error,
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  linkContainer: {
+    marginTop: 15,
   },
 });
 

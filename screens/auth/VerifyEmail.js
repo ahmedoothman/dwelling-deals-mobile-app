@@ -20,7 +20,7 @@ export default function VerifyEmail() {
     setVerifyPending(true);
     const response = await verifyEmailService(otp);
     if (response.status === 'success') {
-      navigation.navigate('Sign In'); // Navigate to login page
+      navigation.navigate('SignIn'); // Navigate to login page
     } else {
       setError(response.message);
     }

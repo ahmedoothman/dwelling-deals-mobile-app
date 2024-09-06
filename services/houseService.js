@@ -69,7 +69,29 @@ export const getTopRatedRentHousesService = async () => {
     }
   }
 };
-
+// top rated sell houses
+export const getTopRatedSellHousesService = async () => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/api/houses?limit=3&type=sale&rate[gte]=4`
+    );
+    return { status: 'success', data: response.data.data };
+  } catch (error) {
+    if (error.code === 'ERR_NETWORK') {
+      return {
+        status: 'error',
+        statusCode: error.code,
+        message: error.message + ' Please check your internet connection',
+      };
+    } else {
+      return {
+        status: 'error',
+        statusCode: error.response.statusCode,
+        message: error.response.data.message,
+      };
+    }
+  }
+};
 // get my houses
 export const getMyHousesService = async () => {
   try {

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { TextInput, Button, ActivityIndicator } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import { resetPasswordService } from '../../services/userService';
-import theme from '../../theme'; // Import your theme file
+import theme from '../../theme';
 
 export default function ResetPasswordScreen() {
   const [otp, setOtp] = useState('');
@@ -12,6 +12,8 @@ export default function ResetPasswordScreen() {
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [error, setError] = useState('');
   const [resetPending, setResetPending] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
   const navigation = useNavigation();
 
   const handleSubmitReset = async () => {
@@ -22,7 +24,7 @@ export default function ResetPasswordScreen() {
     setResetPending(true);
     const response = await resetPasswordService(otp, password, passwordConfirm);
     if (response.status === 'success') {
-      navigation.navigate('Sign In'); // Navigate to login page
+      navigation.navigate('SignIn');
     } else {
       setError(response.message);
     }
@@ -38,73 +40,78 @@ export default function ResetPasswordScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Reset Password</Text>
-      <View style={styles.form}>
-        <Text style={styles.infoText}>
-          Please enter the OTP sent to your email and your new password
-        </Text>
-        <TextInput
-          mode='outlined'
-          label='Enter OTP'
-          value={otp}
-          onChangeText={handleOtpChange}
-          keyboardType='numeric'
-          maxLength={6}
-          style={styles.input}
-          theme={{ colors: { primary: theme.colors.primary } }}
-          left={
-            <TextInput.Icon
-              icon={() => <Icon name='key' size={20} />}
-              color={theme.colors.primary}
-            />
-          }
-        />
-        <TextInput
-          mode='outlined'
-          label='Password'
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          style={styles.input}
-          theme={{ colors: { primary: theme.colors.primary } }}
-          left={
-            <TextInput.Icon
-              icon={() => <Icon name='lock' size={20} />}
-              color={theme.colors.primary}
-            />
-          }
-        />
-        <TextInput
-          mode='outlined'
-          label='Confirm Password'
-          value={passwordConfirm}
-          onChangeText={setPasswordConfirm}
-          secureTextEntry
-          style={styles.input}
-          theme={{ colors: { primary: theme.colors.primary } }}
-          left={
-            <TextInput.Icon
-              icon={() => <Icon name='lock' size={20} />}
-              color={theme.colors.primary}
-            />
-          }
-        />
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-        <Button
-          mode='contained'
-          onPress={handleSubmitReset}
-          disabled={resetPending}
-          style={styles.button}
-        >
-          {resetPending ? (
-            <ActivityIndicator color='white' />
-          ) : (
-            'Reset Password'
-          )}
-        </Button>
+      <View style={styles.avatarContainer}>
+        <Icon name='lock-reset' size={60} color={theme.colors.primary} />
       </View>
-      <View style={styles.copyright}>
-        {/* You can add your copyright component or text here */}
+      <Text style={styles.title}>Reset Password</Text>
+      <Text style={styles.infoText}>
+        Please enter the OTP sent to your email and your new password
+      </Text>
+      <TextInput
+        mode='outlined'
+        label='Enter OTP'
+        value={otp}
+        onChangeText={handleOtpChange}
+        keyboardType='numeric'
+        maxLength={6}
+        style={styles.textInput}
+        theme={{ colors: { primary: theme.colors.primary } }}
+      />
+      <TextInput
+        mode='outlined'
+        label='New Password'
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry={!showPassword}
+        style={styles.textInput}
+        theme={{ colors: { primary: theme.colors.primary } }}
+        right={
+          <TextInput.Icon
+            icon={() => (
+              <Icon
+                name={showPassword ? 'visibility-off' : 'visibility'}
+                size={24}
+                color={theme.colors.primary}
+                onPress={() => setShowPassword(!showPassword)}
+              />
+            )}
+          />
+        }
+      />
+      <TextInput
+        mode='outlined'
+        label='Confirm New Password'
+        value={passwordConfirm}
+        onChangeText={setPasswordConfirm}
+        secureTextEntry={!showPasswordConfirm}
+        style={styles.textInput}
+        theme={{ colors: { primary: theme.colors.primary } }}
+        right={
+          <TextInput.Icon
+            icon={() => (
+              <Icon
+                name={showPasswordConfirm ? 'visibility-off' : 'visibility'}
+                size={24}
+                color={theme.colors.primary}
+                onPress={() => setShowPasswordConfirm(!showPasswordConfirm)}
+              />
+            )}
+          />
+        }
+      />
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      <Button
+        mode='contained'
+        onPress={handleSubmitReset}
+        disabled={resetPending}
+        style={styles.button}
+      >
+        {resetPending ? <ActivityIndicator color='white' /> : 'Reset Password'}
+      </Button>
+      <View style={styles.linkContainer}>
+        <Button mode='text' onPress={() => navigation.navigate('SignIn')}>
+          Remember your password? Sign In
+        </Button>
       </View>
     </ScrollView>
   );
@@ -112,43 +119,41 @@ export default function ResetPasswordScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     padding: 20,
     justifyContent: 'center',
+    backgroundColor: theme.colors.background,
+  },
+  avatarContainer: {
     alignItems: 'center',
-    backgroundColor: theme.colors.background, // Use background color from theme
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,
-    marginBottom: 20,
+    marginBottom: 10,
     textAlign: 'center',
-    color: theme.colors.text, // Use text color from theme
-  },
-  form: {
-    width: '100%',
-    alignItems: 'center',
+    color: theme.colors.text,
   },
   infoText: {
-    marginBottom: 10,
     fontSize: 16,
     textAlign: 'center',
-    color: theme.colors.text, // Use text color from theme
-  },
-  input: {
-    width: '80%',
+    color: theme.colors.text,
     marginBottom: 20,
   },
+  textInput: {
+    width: '100%',
+    marginBottom: 15,
+  },
   button: {
-    width: '60%',
+    width: '100%',
     marginTop: 10,
   },
   errorText: {
-    marginVertical: 10,
-    color: theme.colors.danger, // Use danger color from theme
+    color: theme.colors.error,
     textAlign: 'center',
+    marginBottom: 10,
   },
-  copyright: {
-    marginTop: 20,
-    // Add styles for your copyright text or component here
+  linkContainer: {
+    marginTop: 15,
   },
 });

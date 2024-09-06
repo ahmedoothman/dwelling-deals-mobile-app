@@ -6,7 +6,7 @@ import axios from 'axios';
 let token = getToken();
 //getMyWishList
 export const getMyWishListService = async () => {
-  token = getToken();
+  token = await getToken();
   try {
     const response = await axios.get(`${API_URL}/api/wishlists`, {
       headers: {
@@ -33,7 +33,7 @@ export const getMyWishListService = async () => {
 
 //addToMyWishList
 export const addToMyWishListService = async (data) => {
-  token = getToken();
+  token = await getToken();
   try {
     const response = await axios.post(`${API_URL}/api/wishlists`, data, {
       headers: {
@@ -60,7 +60,7 @@ export const addToMyWishListService = async (data) => {
 
 //removeFromMyWishList
 export const removeFromMyWishListService = async (id) => {
-  token = getToken();
+  token = await getToken();
   try {
     const response = await axios.delete(`${API_URL}/api/wishlists/${id}`, {
       headers: {

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { TextInput, Button, ActivityIndicator } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Changed icon set to MaterialIcons for consistency
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import { forgotPasswordService } from '../../services/userService';
-import theme from '../../theme'; // Assuming you have a similar theme setup in React Native
+import theme from '../../theme';
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');
@@ -19,10 +19,12 @@ export default function ForgotPasswordScreen() {
       return;
     }
     setPending(true);
+    setError('');
+    setMessage('');
     const response = await forgotPasswordService(email);
     if (response.status === 'success') {
       setMessage('Reset code sent to your email');
-      setTimeout(() => navigation.navigate('Reset Password'), 2000); // Navigate after a delay
+      setTimeout(() => navigation.navigate('ResetPassword'), 2000);
     } else {
       setError(response.message);
     }
@@ -30,7 +32,7 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.avatarContainer}>
         <Icon name='lock-outline' size={60} color={theme.colors.primary} />
       </View>
@@ -46,6 +48,7 @@ export default function ForgotPasswordScreen() {
         keyboardType='email-address'
         style={styles.textInput}
         theme={{ colors: { primary: theme.colors.primary } }}
+        left={<TextInput.Icon icon='email' />}
       />
       {message ? <Text style={styles.successText}>{message}</Text> : null}
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -62,19 +65,19 @@ export default function ForgotPasswordScreen() {
           Remember your password? Sign in
         </Button>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     padding: 20,
     justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: theme.colors.background,
   },
   avatarContainer: {
+    alignItems: 'center',
     marginBottom: 20,
   },
   title: {
@@ -95,6 +98,7 @@ const styles = StyleSheet.create({
   },
   button: {
     width: '100%',
+    marginTop: 10,
   },
   successText: {
     marginVertical: 10,
@@ -103,7 +107,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     marginVertical: 10,
-    color: theme.colors.danger,
+    color: theme.colors.error,
     textAlign: 'center',
   },
   linkContainer: {
