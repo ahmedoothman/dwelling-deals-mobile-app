@@ -55,7 +55,7 @@ const SignInScreen = ({ navigation }) => {
 
     const data = { email: state.email, password: state.password };
     const response = await loginService(data);
-    dispatchRedux(authActions.login(response.data));
+    dispatchRedux(authActions.login(response.data.data));
     dispatch({ type: 'SET_LOADING', payload: false });
 
     if (response.status === 'success') {
